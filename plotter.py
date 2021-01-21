@@ -17,8 +17,6 @@ class FileRead:
         for line in f:
             row =[]
             for i in range(0,len(line),width):
-                print("LINE")
-                #print(row)
                 for j in range(0,width):
                     try:
                         row.append(int(line[i+j]))
@@ -78,22 +76,30 @@ class Plotting:
     marker = itertools.cycle((',', '+', '.', 'o', '*')) 
    
     @classmethod
-    def colour_map_gen(self,npArray):
+    def colour_map_gen(self,npArray,fileName=None):
         """
         Takes some form of numpy array and formats it into a colour map depending on value at array
         index
         """
-        return plt.imshow(npArray)
+        fig, ax = plt.subplots()
+        im = plt.imshow(npArray)
+        fig.colorbar(im)
+        plt.title(fileName)
+
+        return im
 
     @classmethod
-    def colour_map_show(self,npArray):
+    def colour_map_show(self,npArray,fileName=None):
         """
         Takes some form of numpy array and formats it into a colour map depending on value at array
         index
         """
-        self.colour_map_gen(npArray)
-        plt.show()
+        self.colour_map_gen(npArray,fileName)
+        if(not fileName==None):
+            plt.savefig(fileName)
 
+        plt.show()
+        
 
     #Scatter and line plot functions
     @classmethod
@@ -165,16 +171,15 @@ class Plotting:
 
 if __name__ == '__main__':
     if (len(sys.argv)==1):
-        print("USAGE: plotType, dataFilePath, dataType,Additional args such as fixed width")
+        print("USAGE: plotType, dataFilePath, dataType, dataWidth")
     else:
         if (sys.argv[3] == "fixedLength"):
             data = FileRead.load_fixed_width_raw_data(sys.argv[2],int(sys.argv[4]))
-            print(data)
         else:
             Print("ONLY fixedLength data can be interpret from command line") 
         
         if (sys.argv[1] == "cmap"):
-            Plotting.colour_map_show(data)
+            Plotting.colour_map_show(data,sys.argv[2]+".png")
             
         else:
             Print("ONLY cmap plot can be generated from command line") 
