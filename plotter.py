@@ -3,6 +3,32 @@ import numpy as np
 import itertools
 import matplotlib.animation as animate 
 import functools
+import sys
+
+class FileRead:
+    @classmethod
+    def load_fixed_width_raw_data(self,filePath,width):
+        """
+        File to read into a 2D list, where data has size of width bytes (a char is a byte)
+        Really could be a more efficient system
+        """
+        f = open(filePath,"r")
+        data = []
+        for line in f:
+            row =[]
+            for i in range(0,len(line),width):
+                print("LINE")
+                #print(row)
+                for j in range(0,width):
+                    try:
+                        row.append(int(line[i+j]))
+                    except:
+                        break #Where \n reached
+            data.append(row)
+            
+        return data
+
+
 
 class Animate:
 
@@ -32,7 +58,7 @@ class Animate:
                                interval = 1000 / fps, # in ms
                                )
 
-        anim.save('test_anim.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+        anim.save('anim.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
 
 
     
@@ -136,4 +162,23 @@ class Plotting:
         #plt.legend()
         plt.show()
         return ns,bins
-    
+
+if __name__ == '__main__':
+    if (len(sys.argv)==1):
+        print("USAGE: plotType, dataFilePath, dataType,Additional args such as fixed width")
+    else:
+        if (sys.argv[3] == "fixedLength"):
+            data = FileRead.load_fixed_width_raw_data(sys.argv[2],int(sys.argv[4]))
+            print(data)
+        else:
+            Print("ONLY fixedLength data can be interpret from command line") 
+        
+        if (sys.argv[1] == "cmap"):
+            Plotting.colour_map_show(data)
+            
+        else:
+            Print("ONLY cmap plot can be generated from command line") 
+
+
+
+
