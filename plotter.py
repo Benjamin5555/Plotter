@@ -103,7 +103,7 @@ class Plotting:
 
     #Scatter and line plot functions
     @classmethod
-    def scatter(self,x_data,y_datas,x_title=None,y_title=None,y_labels=None,title=None):
+    def scatter(self,x_data,y_datas,*args,x_title=None,y_title=None,y_labels=None,title=None):
         i = 0 # Counter used for labelling
         
         for y in y_datas: #PLot each Y value against T
@@ -121,6 +121,7 @@ class Plotting:
         plt.xlabel(x_title)
     
         plt.legend()
+        plt.savefig(title)
         plt.show()
      
     
