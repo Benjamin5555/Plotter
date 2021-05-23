@@ -1,0 +1,20 @@
+set terminal x11 noraise
+set datafile separator whitespace
+set view map
+set pm3d map
+
+set cbrange[0:1]
+
+set pm3d interpolate 0,0
+
+sp '<flock data.dat cat data.dat' matrix w image
+set pm3d interpolate 0,0
+
+
+while(1){
+    set pm3d interpolate 0,0
+   replot
+    pause 0.8
+
+}
+reread

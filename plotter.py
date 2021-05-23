@@ -57,8 +57,8 @@ class Animate:
                                frames = nSeconds * fps,
                                interval = 1000 / fps, # in ms
                                )
-
-        anim.save('anim.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
+        plt.show()
+        #anim.save('anim.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
 
 
     
