@@ -4,6 +4,7 @@ import itertools
 import matplotlib.animation as animate 
 import functools
 import sys
+import pickle
 
 class FileRead:
     @classmethod
@@ -17,8 +18,6 @@ class FileRead:
         for line in f:
             row =[]
             for i in range(0,len(line),width):
-                print("LINE")
-                #print(row)
                 for j in range(0,width):
                     try:
                         row.append(int(line[i+j]))
@@ -27,6 +26,10 @@ class FileRead:
             data.append(row)
             
         return data
+
+    
+    #@classmethod
+    #def file_read_animate(fileObj):
 
 
 
@@ -51,6 +54,7 @@ class Animate:
         #a=np.random.random((5,5))
         #im=plt.imshow(a,interpolation='none')
 
+
         anim = animate.FuncAnimation(
                                fig,
                                animate_func,
@@ -60,8 +64,7 @@ class Animate:
         plt.show()
         #anim.save('anim.mp4', fps=fps, extra_args=['-vcodec', 'libx264'])
 
-
-    
+        
     # animation function.  This is called sequentially
     """
     def animate_func(i):
@@ -70,6 +73,60 @@ class Animate:
         im.set_array(a)
         return [im]
     """
+    @staticmethod
+    def _loadNext(filePath):
+        with open(filePath, 'rb') as f:
+            yield pickle.load(f)
+
+
+    @staticmethod
+    def animateFunc(i,fileName):
+        print("HELLO")
+        with open(fileName,'rb') as f:
+            a = pickle.loads(f)
+        
+        return Plotting.colour_map_gen(a)
+    @staticmethod
+    def CmapFromNPBs(filePath):
+        fig = plt.figure()
+        with open(filePath, 'rb') as f:
+            anim = animate.FuncAnimation(
+                               fig,
+                               Animate.animateFunc,
+                               frames = 1000 , 
+                               fargs = (filePath,),
+                               interval=1000/10
+                               )
+
+            anim.save('anim.mp4', fps=10, extra_args=['-vcodec', 'libx264'])
+    
+    #@staticmethod
+    #def _loadNext(filePath):
+    #    while(True):
+    #        try:
+    #            print(pickle.load(f))
+    #            #yield pickle.load(f)
+    #        except:
+    #            return
+
+    #@staticmethod
+    #def animateFunc(i):
+    #    return Plotting.colour_map_gen(i)
+
+    #@staticmethod
+    #def CmapFromNPBs(filePath):
+    #    fig = plt.figure()
+    #    with open('test.file', 'rb') as f:
+
+    #        anim = animate.FuncAnimation(
+    #                           fig,
+    #                           Animate.animateFunc,
+    #                           frames =1000 , 
+    #                           interval=1000/10
+    #                           )
+
+    #    anim.save('anim.mp4', fps=10, extra_args=['-vcodec', 'libx264'])
+
 
 
 
@@ -78,26 +135,41 @@ class Plotting:
     marker = itertools.cycle((',', '+', '.', 'o', '*')) 
    
     @classmethod
-    def colour_map_gen(self,npArray):
+    def colour_map_gen(self,npArray,fileName=None,*args, bar=False ):
         """
         Takes some form of numpy array and formats it into a colour map depending on value at array
         index
         """
-        return plt.imshow(npArray)
+        
+        im = plt.imshow(npArray)
+        if (bar):
+            fig, ax = plt.subplots()
+            fig.colorbar(im)
+        #im = plt.imshow() was here
+        plt.title(fileName)
+        
+        return im
+
+
 
     @classmethod
-    def colour_map_show(self,npArray):
+    def colour_map_show(self,npArray,fileName=None,*args,bar=False):
         """
         Takes some form of numpy array and formats it into a colour map depending on value at array
         index
         """
-        self.colour_map_gen(npArray)
-        plt.show()
+        
+        self.colour_map_gen(npArray,fileName)
+        if(not fileName==None):
+            plt.savefig(fileName)
 
+        plt.show()
+        #Should have some form of close plot here 
+        
 
     #Scatter and line plot functions
     @classmethod
-    def scatter(self,x_data,y_datas,x_title=None,y_title=None,y_labels=None,title=None):
+    def scatter(self,x_data,y_datas,*args,x_title=None,y_title=None,y_labels=None,title=None):
         i = 0 # Counter used for labelling
         
         for y in y_datas: #PLot each Y value against T
@@ -115,6 +187,7 @@ class Plotting:
         plt.xlabel(x_title)
     
         plt.legend()
+        plt.savefig(title)
         plt.show()
      
     
@@ -163,21 +236,21 @@ class Plotting:
         plt.show()
         return ns,bins
 
+
 if __name__ == '__main__':
     if (len(sys.argv)==1):
-        print("USAGE: plotType, dataFilePath, dataType,Additional args such as fixed width")
+        print("USAGE: plotType, dataFilePath, dataType, dataWidt\n plotType: cmap, cmapAnimate\ndataType: fixedLength (dataWidth also has to be specified); npbs for an array of numpybinarys for use in animation")
     else:
         if (sys.argv[3] == "fixedLength"):
             data = FileRead.load_fixed_width_raw_data(sys.argv[2],int(sys.argv[4]))
-            print(data)
+        elif(sys.argv[3]=="npbs"):
+            if(sys.argv[1]=="cmapAnimate"):
+                Animate.CmapFromNPBs(sys.argv[2])
         else:
-            Print("ONLY fixedLength data can be interpret from command line") 
+            print("See usage for command line usable") 
         
         if (sys.argv[1] == "cmap"):
-            Plotting.colour_map_show(data)
-            
-        else:
-            Print("ONLY cmap plot can be generated from command line") 
+            Plotting.colour_map_show(data,sys.argv[2]+".png",bar=True)
 
 
 
