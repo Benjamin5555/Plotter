@@ -3,7 +3,7 @@ set datafile separator whitespace
 set view map
 set pm3d map
 
-set cbrange[0:1]
+#set cbrange[0:1]
 
 set pm3d interpolate 0,0
 
